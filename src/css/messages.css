@@ -1,0 +1,17 @@
+.messageMainContaier{
+    width: 100%;
+    /* -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    height:100%; */
+    padding: 0 20px;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    flex: auto;
+    background-color: #131c21;
+    color: white;
+    padding-top: 3.8rem;
+    padding-bottom: 4rem;
+    height: 100vh;
+    
+}
