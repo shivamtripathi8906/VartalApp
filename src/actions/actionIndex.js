@@ -1,5 +1,5 @@
 import {auth, storage} from "../config/Config";
-import { SET_USER , SET_USER_DATA} from "./actionType";
+import { SET_USER , SET_USER_CHATS, SET_USER_DATA} from "./actionType";
 import firebase from "@firebase/app-compat";
 import db from "../config/Config";
 import { Redirect } from "react-router-dom";
@@ -14,6 +14,11 @@ export const setUserInputData1 = (payload) => ({
   payload: payload,
 }
 );
+
+export const setUserChats1=(payload)=>({
+  type: SET_USER_CHATS,
+  payload:payload,
+})
 
 export function signOutAPI() {
   return (dispatch) => {
@@ -48,7 +53,18 @@ export function signInAPI() {
       auth.onAuthStateChanged(async (user) => {
         if (user) {
             // console.log(user);  
-          dispatch(setUser(user));
+            db.collection('UserData').where('userId','==',user.email).get()
+            .then((querySnapshot) => {
+              var userOb = {};
+                querySnapshot.forEach((doc) => {
+                  userOb=doc.data();
+                  userOb.id = doc.id;
+
+                  console.log(doc.id, " => ", doc.data());
+                  dispatch(setUser(userOb));
+              });
+            })
+          
         }
       });
     };
@@ -95,13 +111,15 @@ export function signInAPI() {
           (error) => console.log(error.code),
           async () => {
             const downloadURL = await upload.snapshot.ref.getDownloadURL();
-            console.log(payload);
+            // console.log(payload);
             db.collection("UserData").add({
               
               
                 userId:payload.uId,
                 userName:payload.userName,
                 userProfilePicture:downloadURL,
+                about:"About",
+                chats:[],
   
                 
             });
@@ -114,6 +132,8 @@ export function signInAPI() {
             userId:payload.uId,
             userName:payload.userName,
             userProfilePicture:"",
+            about:"About",
+            chats:[],
           
         });
         <Redirect to="/app"/>
@@ -151,5 +171,46 @@ export function signInAPI() {
     }
     
   }
+
+  export function setUserAboutAPI(payload){
+    return(dispatch)=>{
+      db.collection("UserData").doc(payload.id1).update({about: payload.newabout});
+      // console.log(payload.id1)
+    }
+    
+  }
+
+  export function setUserChatsAPI(payload){
+    return(dispatch)=>{
+      console.log(payload)
+      db.collection("UserChats").add({
+        messages:[{}],
+        participants:[payload.MainUserId, payload.toChatUser]
+      });
+    }
+  }
+
+  export function setUserChatsStateAPI(){
+    return(dispatch)=>{
+
+    db.collection("UserChats")
+      .onSnapshot((snapshot) => {
+        var payload = [];
+        snapshot.docs.forEach((doc) => {
+          var ob = {};
+          // ob.id = doc.userId;
+          ob.data = {...doc.data(), id:doc.id};
+          payload.push(ob);
+        });
+        // console.log(payload)
+        dispatch(setUserChats1(payload));
+        
+        // console.log(payload);
+      });
+      
+    }
+    
+  }
+
 
   

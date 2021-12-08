@@ -20,5 +20,5 @@ const provider = new firebase.auth.GoogleAuthProvider();
 const phoneProvider= firebase.auth.PhoneAuthProvider.PROVIDER_ID;
 const storage = firebase.storage();
 
-export { auth, provider, storage, phoneProvider };
+export { auth, provider, storage, phoneProvider,db };
 export default db;
